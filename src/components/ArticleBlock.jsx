@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 export default function ArticleBlock({ postdetails }) {
+  const hasAuthorDesc = postdetails.author_description ? true : false;
+
   return (
     <article className="article_block">
       <div className="author_bar">
@@ -14,7 +16,7 @@ export default function ArticleBlock({ postdetails }) {
 
       <div dangerouslySetInnerHTML={{ __html: postdetails.body }} />
 
-      {postdetails.author_description && (
+      {hasAuthorDesc && (
         <div className="about_author">
           <h3>About {postdetails.author_name}</h3>
           <div className="about_content">
@@ -25,8 +27,13 @@ export default function ArticleBlock({ postdetails }) {
       )}
 
       <div className="prev_next">
-        <button className="btn_prev">← Previous<br/><small>5 Tips for better Cardio Sessions</small></button>
-        <button className="btn_next">Next →<br/><small>Meal Prep Basics for Gym Enthusiasts</small></button>
+        {/* TODO: make these dynamic based on actual prev/next posts */}
+        <button className="btn_prev">
+          ← Previous<br/><small>5 Tips for better Cardio Sessions</small>
+        </button>
+        <button className="btn_next">
+          Next →<br/><small>Meal Prep Basics for Gym Enthusiasts</small>
+        </button>
       </div>
     </article>
   );

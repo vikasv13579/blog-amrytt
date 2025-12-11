@@ -15,23 +15,37 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const post = getBlogPostBySlug(params.slug);
-  if (!post) return { notFound: true };
+  if (!post) {
+    return { notFound: true };
+  }
+
+  // format date on server to avoid hydration issues
+  const postDate = new Date(post.date);
+  const formattedDate = postDate.toLocaleDateString("en-US", { 
+    day: "numeric", 
+    month: "long", 
+    year: "numeric" 
+  });
 
   const postdetails = {
     ...post,
-    date: new Date(post.date).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }),
+    date: formattedDate,
   };
 
   const allPosts = getAllBlogPosts();
-  const recentPosts = allPosts.slice(0, 3).map(p => ({
-    slug: p.slug,
-    image: p.image,
-    category: p.category,
-    date: new Date(p.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
-    title: p.title,
-  }));
+  const recentPosts = allPosts.slice(0, 3).map(p => {
+    const pDate = new Date(p.date);
+    return {
+      slug: p.slug,
+      image: p.image,
+      category: p.category,
+      date: pDate.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+      title: p.title,
+    };
+  });
 
-  const articles = getRelatedPosts(post.slug, 4).map(p => ({
+  const relatedPosts = getRelatedPosts(post.slug, 4);
+  const articles = relatedPosts.map(p => ({
     image: p.image,
     title: p.title,
     description: p.excerpt,
@@ -39,7 +53,14 @@ export async function getStaticProps({ params }) {
     slug: p.slug,
   }));
 
-  return { props: { post, postdetails, articles, recentPosts } };
+  return { 
+    props: { 
+      post, 
+      postdetails, 
+      articles, 
+      recentPosts 
+    } 
+  };
 }
 
 export default function BlogPostPage({ post, postdetails, articles, recentPosts }) {

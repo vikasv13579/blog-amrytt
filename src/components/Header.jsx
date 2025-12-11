@@ -10,7 +10,7 @@ export default function Header({ title, image }) {
         </nav>
         <h1>{title}</h1>
       </div>
-      {image && <img src={image} alt={title} />}
+      {image ? <img src={image} alt={title} /> : null}
     </header>
   );
 }
