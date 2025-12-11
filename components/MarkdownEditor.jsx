@@ -1,41 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllBlogPosts, updateBlogPost } from "@/data/blogData";
+import { getAllBlogPosts, savePostEdit } from "@/data/blogData";
 
 export default function MarkdownEditor({ postId, onClose, onSave }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const posts = getAllBlogPosts();
     const post = posts.find(p => p.id === postId);
+    
     if (post) {
       setTitle(post.title);
-      const cleanContent = post.body.replace(/<[^>]*>/g, "").replace(/\n\s+/g, '\n\n');
+      const cleanContent = post.body.replace(/<[^>]*>/g, "").replace(/\n\s+/g, '\n\n').trim();
       setContent(cleanContent);
     }
   }, [postId]);
 
   const handleSave = () => {
-    // Convert plain text content back to HTML paragraphs
-    const htmlContent = content
-      .split('\n\n')
-      .filter(para => para.trim())
-      .map(para => `<p>${para.trim()}</p>`)
-      .join('\n      ');
-
-    // Update the post
-    updateBlogPost(postId, {
-      title,
-      body: htmlContent
-    });
-
-    if (onSave) {
-      onSave();
-    } else {
+    setIsSaving(true);
+    
+    setTimeout(() => {
+      const htmlBody = content.split('\n\n').filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join('\n      ');
+      
+      savePostEdit(postId, { title, body: htmlBody });
+      
+      setIsSaving(false);
+      if (onSave) onSave();
       onClose();
-    }
+    }, 800);
   };
 
   return (
@@ -45,17 +40,25 @@ export default function MarkdownEditor({ postId, onClose, onSave }) {
         type="text" 
         value={title} 
         onChange={(e) => setTitle(e.target.value)} 
-        placeholder="Title" 
+        placeholder="Post title" 
       />
       <textarea 
         value={content} 
         onChange={(e) => setContent(e.target.value)} 
-        placeholder="Content" 
-        rows={15} 
+        placeholder="Write your post content here..." 
+        rows={15}
       />
       <div>
-        <button className="btn btn_primary" onClick={handleSave}>Save</button>
-        <button className="btn" onClick={onClose}>Cancel</button>
+        <button 
+          className="btn btn_primary" 
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? 'Saving...' : 'Save Changes'}
+        </button>
+        <button className="btn" onClick={onClose} disabled={isSaving}>
+          Cancel
+        </button>
       </div>
     </div>
   );

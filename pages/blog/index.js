@@ -1,20 +1,17 @@
-"use client";
-
 import Link from "next/link";
-import { useState, useEffect } from "react";
 import { getAllBlogPosts } from "@/data/blogData";
 
-export default function BlogPage() {
-  const [posts, setPosts] = useState([]);
+export async function getStaticProps() {
+  const allPosts = getAllBlogPosts();
+  const posts = allPosts.map(post => ({
+    ...post,
+    date: new Date(post.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+  }));
 
-  useEffect(() => {
-    const allPosts = getAllBlogPosts().map(post => ({
-      ...post,
-      date: new Date(post.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
-    }));
-    setPosts(allPosts);
-  }, []);
+  return { props: { posts } };
+}
 
+export default function BlogPage({ posts }) {
   return (
     <div>
       <header className="header_section">
@@ -29,7 +26,9 @@ export default function BlogPage() {
               <div className="related_card" key={post.id}>
                 <img src={post.image} alt={post.title} />
                 <div className="card_body">
-                  <Link href={`/blog/${post.slug}`}><h3>{post.title}</h3></Link>
+                  <Link href={`/blog/${post.slug}`}>
+                    <h3>{post.title}</h3>
+                  </Link>
                   <p>{post.excerpt}</p>
                   <span className="author">By {post.author_name} • {post.date}</span>
                 </div>

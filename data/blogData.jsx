@@ -1,4 +1,5 @@
-const defaultBlogPosts = [
+// Static blog data
+export const blogPosts = [
   {
     id: "full-body-workout",
     slug: "full-body-workout",
@@ -56,32 +57,6 @@ const defaultBlogPosts = [
   },
 ];
 
-// Get blog posts with localStorage overrides
-function getBlogPostsWithUpdates() {
-  if (typeof window === 'undefined') {
-    return defaultBlogPosts;
-  }
-
-  const savedEdits = localStorage.getItem('blogPostEdits');
-  if (!savedEdits) {
-    return defaultBlogPosts;
-  }
-
-  try {
-    const edits = JSON.parse(savedEdits);
-    return defaultBlogPosts.map(post => {
-      if (edits[post.id]) {
-        return { ...post, ...edits[post.id] };
-      }
-      return post;
-    });
-  } catch (e) {
-    console.error('Error loading saved edits:', e);
-    return defaultBlogPosts;
-  }
-}
-
-export const blogPosts = defaultBlogPosts;
 
 export const tourGuides = [
   { name: "Wisata Kreatif", location: "Jombang, Jawa Timur", rating: 4.8, image: "/images/user1.png" },
@@ -89,41 +64,44 @@ export const tourGuides = [
   { name: "Dang Hairun", location: "Bandung, Jawa Barat", rating: 4.9, image: "/images/user3.png" },
 ];
 
-export const getAllBlogPosts = () => getBlogPostsWithUpdates();
+const getSavedEdits = () => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const saved = localStorage.getItem('blogEdits');
+    return saved ? JSON.parse(saved) : {};
+  } catch (e) {
+    return {};
+  }
+};
+
+export const getAllBlogPosts = () => {
+  const edits = getSavedEdits();
+  return blogPosts.map(post => edits[post.id] ? { ...post, ...edits[post.id] } : post);
+};
 
 export const getBlogPostBySlug = (slug) => {
-  const posts = getBlogPostsWithUpdates();
-  return posts.find(post => post.slug === slug);
+  return getAllBlogPosts().find(post => post.slug === slug);
 };
 
 export const getRelatedPosts = (currentSlug, limit = 4) => {
-  const posts = getBlogPostsWithUpdates();
-  return posts.filter(post => post.slug !== currentSlug).slice(0, limit);
+  return getAllBlogPosts().filter(post => post.slug !== currentSlug).slice(0, limit);
 };
 
-// Update a blog post
-export const updateBlogPost = (postId, updates) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
+export const savePostEdit = (postId, updates) => {
+  if (typeof window === 'undefined') return;
+  
   try {
-    const savedEdits = localStorage.getItem('blogPostEdits');
-    const edits = savedEdits ? JSON.parse(savedEdits) : {};
-    
-    edits[postId] = {
-      ...(edits[postId] || {}),
-      ...updates
-    };
-    
-    localStorage.setItem('blogPostEdits', JSON.stringify(edits));
+    const edits = getSavedEdits();
+    edits[postId] = { ...edits[postId], ...updates };
+    localStorage.setItem('blogEdits', JSON.stringify(edits));
   } catch (e) {
-    console.error('Error saving post edit:', e);
+    console.error('Failed to save:', e);
   }
 };
 
 export const getCommentsForPost = async (postId) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
+  
   return [
     {
       id: 1,

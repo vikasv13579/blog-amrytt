@@ -239,6 +239,49 @@ button { cursor: pointer; }
 .comment_date { margin-left: auto; font-size: 11px; color: #999; }
 .comment_text { font-size: 14px; line-height: 1.6; color: #555; }
 
+/* skeleton loader */
+.skeleton {
+  animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.skeleton_avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e0e0e0;
+}
+
+.skeleton_line {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.skeleton_line_short { width: 30%; }
+.skeleton_line_medium { width: 60%; }
+.skeleton_line_full { width: 100%; }
+
+/* error message */
+.error_message {
+  padding: 20px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.error_message p {
+  color: #856404;
+  margin: 0;
+  font-size: 14px;
+}
+
 /* form */
 .add_comment {
   margin-top: 40px;

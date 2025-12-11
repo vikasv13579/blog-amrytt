@@ -10,16 +10,17 @@ export default function CommentForm({ onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // use name if provided, otherwise extract from email
+    
     const userName = name.trim() ? name : email.split("@")[0];
+    
     onSubmit({
       name: userName,
       content: comment,
-      rating: rating ? rating : 5,
+      rating: rating || 5,
       date: new Date().toLocaleDateString(),
       image: "/images/user1.png",
     });
-    // reset form
+    
     setName("");
     setEmail("");
     setComment("");
