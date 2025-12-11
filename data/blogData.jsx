@@ -1,4 +1,4 @@
-export const blogPosts = [
+const defaultBlogPosts = [
   {
     id: "full-body-workout",
     slug: "full-body-workout",
@@ -56,18 +56,70 @@ export const blogPosts = [
   },
 ];
 
+// Get blog posts with localStorage overrides
+function getBlogPostsWithUpdates() {
+  if (typeof window === 'undefined') {
+    return defaultBlogPosts;
+  }
+
+  const savedEdits = localStorage.getItem('blogPostEdits');
+  if (!savedEdits) {
+    return defaultBlogPosts;
+  }
+
+  try {
+    const edits = JSON.parse(savedEdits);
+    return defaultBlogPosts.map(post => {
+      if (edits[post.id]) {
+        return { ...post, ...edits[post.id] };
+      }
+      return post;
+    });
+  } catch (e) {
+    console.error('Error loading saved edits:', e);
+    return defaultBlogPosts;
+  }
+}
+
+export const blogPosts = defaultBlogPosts;
+
 export const tourGuides = [
   { name: "Wisata Kreatif", location: "Jombang, Jawa Timur", rating: 4.8, image: "/images/user1.png" },
   { name: "Wisata Moch", location: "Wonosobo, Jawa Tengah", rating: 4.9, image: "/images/user2.png" },
   { name: "Dang Hairun", location: "Bandung, Jawa Barat", rating: 4.9, image: "/images/user3.png" },
 ];
 
-export const getAllBlogPosts = () => blogPosts;
+export const getAllBlogPosts = () => getBlogPostsWithUpdates();
 
-export const getBlogPostBySlug = (slug) => blogPosts.find(post => post.slug === slug);
+export const getBlogPostBySlug = (slug) => {
+  const posts = getBlogPostsWithUpdates();
+  return posts.find(post => post.slug === slug);
+};
 
 export const getRelatedPosts = (currentSlug, limit = 4) => {
-  return blogPosts.filter(post => post.slug !== currentSlug).slice(0, limit);
+  const posts = getBlogPostsWithUpdates();
+  return posts.filter(post => post.slug !== currentSlug).slice(0, limit);
+};
+
+// Update a blog post
+export const updateBlogPost = (postId, updates) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    const savedEdits = localStorage.getItem('blogPostEdits');
+    const edits = savedEdits ? JSON.parse(savedEdits) : {};
+    
+    edits[postId] = {
+      ...(edits[postId] || {}),
+      ...updates
+    };
+    
+    localStorage.setItem('blogPostEdits', JSON.stringify(edits));
+  } catch (e) {
+    console.error('Error saving post edit:', e);
+  }
 };
 
 export const getCommentsForPost = async (postId) => {

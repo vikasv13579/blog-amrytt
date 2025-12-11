@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllBlogPosts } from "@/data/blogData";
+import { getAllBlogPosts, updateBlogPost } from "@/data/blogData";
 
-export default function MarkdownEditor({ postId, onClose }) {
+export default function MarkdownEditor({ postId, onClose, onSave }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -12,14 +12,30 @@ export default function MarkdownEditor({ postId, onClose }) {
     const post = posts.find(p => p.id === postId);
     if (post) {
       setTitle(post.title);
-      const cleanContent = post.body.replace(/<[^>]*>/g, "");
+      const cleanContent = post.body.replace(/<[^>]*>/g, "").replace(/\n\s+/g, '\n\n');
       setContent(cleanContent);
     }
   }, [postId]);
 
   const handleSave = () => {
-    alert("Saved!");
-    onClose();
+    // Convert plain text content back to HTML paragraphs
+    const htmlContent = content
+      .split('\n\n')
+      .filter(para => para.trim())
+      .map(para => `<p>${para.trim()}</p>`)
+      .join('\n      ');
+
+    // Update the post
+    updateBlogPost(postId, {
+      title,
+      body: htmlContent
+    });
+
+    if (onSave) {
+      onSave();
+    } else {
+      onClose();
+    }
   };
 
   return (

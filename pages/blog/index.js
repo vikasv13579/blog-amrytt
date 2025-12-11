@@ -1,15 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { getAllBlogPosts } from "@/data/blogData";
 
-export async function getStaticProps() {
-  const posts = getAllBlogPosts().map(post => ({
-    ...post,
-    date: new Date(post.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
-  }));
-  return { props: { posts } };
-}
+export default function BlogPage() {
+  const [posts, setPosts] = useState([]);
 
-export default function BlogPage({ posts }) {
+  useEffect(() => {
+    const allPosts = getAllBlogPosts().map(post => ({
+      ...post,
+      date: new Date(post.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+    }));
+    setPosts(allPosts);
+  }, []);
+
   return (
     <div>
       <header className="header_section">
