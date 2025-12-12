@@ -1,3 +1,4 @@
+Live Vercel Url : https://blog-amrytt.vercel.app/blog/full-body-workout
 # Next.js Blog Project
 
 A responsive blog built with Next.js using static site generation.
